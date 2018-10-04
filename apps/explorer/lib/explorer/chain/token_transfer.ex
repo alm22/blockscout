@@ -26,7 +26,7 @@ defmodule Explorer.Chain.TokenTransfer do
 
   import Ecto.{Changeset, Query}
 
-  alias Explorer.Chain.{Address, Block, Hash, Transaction, TokenTransfer}
+  alias Explorer.Chain.{Address, Block, Hash, Transaction, Token, TokenTransfer}
   alias Explorer.{PagingOptions, Repo}
 
   @default_paging_options %PagingOptions{page_size: 50}
@@ -165,5 +165,21 @@ defmodule Explorer.Chain.TokenTransfer do
     query
     |> join(:left, [transaction], tt in assoc(transaction, :token_transfers))
     |> where([_transaction, tt], tt.to_address_hash == ^address_hash or tt.from_address_hash == ^address_hash)
+  end
+
+  @doc """
+  Counts all the token transfers and groups by token contract address hash.
+  """
+  def count_token_transfers do
+    query =
+      from(
+        tt in TokenTransfer,
+        join: t in Token,
+        on: tt.token_contract_address_hash == t.contract_address_hash,
+        select: {tt.token_contract_address_hash, count(tt.id)},
+        group_by: tt.token_contract_address_hash
+      )
+
+    Repo.all(query)
   end
 end

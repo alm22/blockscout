@@ -142,4 +142,37 @@ defmodule Explorer.Chain.TokenTransferTest do
       assert TokenTransfer.count_token_transfers_from_token_hash(token_contract_address.hash) == 2
     end
   end
+
+  describe "count_token_transfers/0" do
+    test "returns token transfers grouped by tokens" do
+      token_contract_address = insert(:contract_address)
+      token = insert(:token, contract_address: token_contract_address)
+
+      transaction =
+        :transaction
+        |> insert()
+        |> with_block()
+
+      insert(
+        :token_transfer,
+        to_address: build(:address),
+        transaction: transaction,
+        token_contract_address: token_contract_address,
+        token: token
+      )
+
+      insert(
+        :token_transfer,
+        to_address: build(:address),
+        transaction: transaction,
+        token_contract_address: token_contract_address,
+        token: token
+      )
+
+      results = TokenTransfer.count_token_transfers()
+
+      assert length(results) == 1
+      assert List.first(results) == {token.contract_address_hash, 2}
+    end
+  end
 end
