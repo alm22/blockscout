@@ -12,7 +12,7 @@ defmodule BlockScoutWeb.TransactionChannelTest do
       |> insert()
       |> with_block()
 
-    Notifier.handle_event({:chain_event, :transactions, [transaction.hash]})
+    Notifier.handle_event({:chain_event, :transactions, :realtime, [transaction.hash]})
 
     receive do
       %Phoenix.Socket.Broadcast{topic: ^topic, event: "new_transaction", payload: payload} ->
@@ -29,7 +29,7 @@ defmodule BlockScoutWeb.TransactionChannelTest do
 
     pending = insert(:transaction)
 
-    Notifier.handle_event({:chain_event, :transactions, [pending.hash]})
+    Notifier.handle_event({:chain_event, :transactions, :realtime, [pending.hash]})
 
     receive do
       %Phoenix.Socket.Broadcast{topic: ^topic, event: "new_pending_transaction", payload: payload} ->

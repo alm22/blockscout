@@ -9,7 +9,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
 
     address = insert(:address)
 
-    Notifier.handle_event({:chain_event, :addresses, [address]})
+    Notifier.handle_event({:chain_event, :addresses, :realtime, [address]})
 
     receive do
       %Phoenix.Socket.Broadcast{topic: ^topic, event: "count", payload: %{count: _}} ->
@@ -30,7 +30,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
 
     test "notified of balance_update for matching address", %{address: address, topic: topic} do
       address_with_balance = %{address | fetched_coin_balance: 1}
-      Notifier.handle_event({:chain_event, :addresses, [address_with_balance]})
+      Notifier.handle_event({:chain_event, :addresses, :realtime, [address_with_balance]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "balance_update", payload: payload} ->
@@ -42,7 +42,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
     end
 
     test "not notified of balance_update if fetched_coin_balance is nil", %{address: address} do
-      Notifier.handle_event({:chain_event, :addresses, [address]})
+      Notifier.handle_event({:chain_event, :addresses, :realtime, [address]})
 
       receive do
         _ -> assert false, "Message was broadcast for nil fetched_coin_balance."
@@ -57,7 +57,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
         |> insert(from_address: address)
         |> with_block()
 
-      Notifier.handle_event({:chain_event, :transactions, [transaction.hash]})
+      Notifier.handle_event({:chain_event, :transactions, :realtime, [transaction.hash]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "transaction", payload: payload} ->
@@ -75,7 +75,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
         |> insert(to_address: address)
         |> with_block()
 
-      Notifier.handle_event({:chain_event, :transactions, [transaction.hash]})
+      Notifier.handle_event({:chain_event, :transactions, :realtime, [transaction.hash]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "transaction", payload: payload} ->
@@ -93,7 +93,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
         |> insert(from_address: address, to_address: address)
         |> with_block()
 
-      Notifier.handle_event({:chain_event, :transactions, [transaction.hash]})
+      Notifier.handle_event({:chain_event, :transactions, :realtime, [transaction.hash]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "transaction", payload: payload} ->
@@ -119,7 +119,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
 
       internal_transaction = insert(:internal_transaction, transaction: transaction, from_address: address, index: 0)
 
-      Notifier.handle_event({:chain_event, :internal_transactions, [internal_transaction]})
+      Notifier.handle_event({:chain_event, :internal_transactions, :realtime, [internal_transaction]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "internal_transaction", payload: payload} ->
@@ -139,7 +139,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
 
       internal_transaction = insert(:internal_transaction, transaction: transaction, to_address: address, index: 0)
 
-      Notifier.handle_event({:chain_event, :internal_transactions, [internal_transaction]})
+      Notifier.handle_event({:chain_event, :internal_transactions, :realtime, [internal_transaction]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "internal_transaction", payload: payload} ->
@@ -163,7 +163,7 @@ defmodule BlockScoutWeb.AddressChannelTest do
       internal_transaction =
         insert(:internal_transaction, transaction: transaction, from_address: address, to_address: address, index: 0)
 
-      Notifier.handle_event({:chain_event, :internal_transactions, [internal_transaction]})
+      Notifier.handle_event({:chain_event, :internal_transactions, :realtime, [internal_transaction]})
 
       receive do
         %Phoenix.Socket.Broadcast{topic: ^topic, event: "internal_transaction", payload: payload} ->

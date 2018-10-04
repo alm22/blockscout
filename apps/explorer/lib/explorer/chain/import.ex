@@ -83,7 +83,7 @@ defmodule Explorer.Chain.Import do
           optional(:balances) => balances_options,
           optional(:blocks) => blocks_options,
           optional(:block_second_degree_relations) => block_second_degree_relations_options,
-          optional(:broadcast) => boolean,
+          optional(:broadcast) => atom,
           optional(:internal_transactions) => internal_transactions_options,
           optional(:logs) => logs_options,
           optional(:receipts) => receipts_options,

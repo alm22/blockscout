@@ -249,7 +249,7 @@ defmodule BlockScoutWeb.ViewingAddressesTest do
       internal_transaction =
         insert(:internal_transaction, transaction: transaction, index: 0, from_address: addresses.lincoln)
 
-      Notifier.handle_event({:chain_event, :internal_transactions, [internal_transaction]})
+      Notifier.handle_event({:chain_event, :internal_transactions, :realtime, [internal_transaction]})
 
       session
       |> assert_has(AddressPage.internal_transactions(count: 3))
