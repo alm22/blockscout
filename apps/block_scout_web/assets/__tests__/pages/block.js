@@ -1,6 +1,5 @@
 import { reducer, initialState } from '../../js/pages/block'
 
-
 test('CHANNEL_DISCONNECTED', () => {
   const state = initialState
   const action = {
@@ -9,6 +8,65 @@ test('CHANNEL_DISCONNECTED', () => {
   const output = reducer(state, action)
 
   expect(output.channelDisconnected).toBe(true)
+})
+
+describe('PAGE_LOAD', () => {
+  test('page 1 loads block numbers', () => {
+    const state = initialState
+    const action = {
+      type: 'PAGE_LOAD',
+      beyondPageOne: false,
+      blockNumbers: [2, 1]
+    }
+    const output = reducer(state, action)
+
+    expect(output.beyondPageOne).toBe(false)
+    expect(output.blockNumbers).toEqual([2, 1])
+    expect(output.initialRender).toBe(true)
+    expect(output.skippedBlockNumbers).toEqual([])
+  })
+  test('page 2 loads block numbers', () => {
+    const state = initialState
+    const action = {
+      type: 'PAGE_LOAD',
+      beyondPageOne: true,
+      blockNumbers: [2, 1]
+    }
+    const output = reducer(state, action)
+
+    expect(output.beyondPageOne).toBe(true)
+    expect(output.blockNumbers).toEqual([2, 1])
+    expect(output.initialRender).toBe(true)
+    expect(output.skippedBlockNumbers).toEqual([])
+  })
+  test('page 1 with skipped blocks', () => {
+    const state = initialState
+    const action = {
+      type: 'PAGE_LOAD',
+      beyondPageOne: false,
+      blockNumbers: [4, 1]
+    }
+    const output = reducer(state, action)
+
+    expect(output.beyondPageOne).toBe(false)
+    expect(output.blockNumbers).toEqual([4, 3, 2, 1])
+    expect(output.initialRender).toBe(true)
+    expect(output.skippedBlockNumbers).toEqual([2, 3])
+  })
+  test('page 2 with skipped blocks', () => {
+    const state = initialState
+    const action = {
+      type: 'PAGE_LOAD',
+      beyondPageOne: true,
+      blockNumbers: [4, 1]
+    }
+    const output = reducer(state, action)
+
+    expect(output.beyondPageOne).toBe(true)
+    expect(output.blockNumbers).toEqual([4, 3, 2, 1])
+    expect(output.initialRender).toBe(true)
+    expect(output.skippedBlockNumbers).toEqual([2, 3])
+  })
 })
 
 describe('RECEIVED_NEW_BLOCK', () => {

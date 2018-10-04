@@ -10,17 +10,37 @@ export const initialState = {
   blockNumbers: [],
   beyondPageOne: null,
   channelDisconnected: false,
+  initialRender: false,
   newBlock: null,
   replaceBlock: null,
   skippedBlockNumbers: []
 }
 
+function skippedBlockListBuilder (skippedBlockNumbers, startBlock, endBlock) {
+  for (let i = startBlock; i < endBlock; i++) skippedBlockNumbers.push(i)
+  return skippedBlockNumbers
+}
+
+function buildFullBlockList (blockNumbers) {
+  const newestBlock = _.first(blockNumbers)
+  const oldestBlock = _.last(blockNumbers)
+  let fullBlockList = skippedBlockListBuilder([], oldestBlock, newestBlock + 1)
+  return fullBlockList.reverse()
+}
+
 export function reducer (state = initialState, action) {
   switch (action.type) {
     case 'PAGE_LOAD': {
+      const blockNumbers = buildFullBlockList(action.blockNumbers)
+      const skippedBlockNumbers = _.chain(blockNumbers)
+        .difference(action.blockNumbers)
+        .reverse()
+        .value()
       return Object.assign({}, state, {
         beyondPageOne: action.beyondPageOne,
-        blockNumbers: action.blockNumbers
+        blockNumbers,
+        initialRender: true,
+        skippedBlockNumbers
       })
     }
     case 'CHANNEL_DISCONNECTED': {
@@ -43,9 +63,7 @@ export function reducer (state = initialState, action) {
       } else {
         let skippedBlockNumbers = state.skippedBlockNumbers.slice(0)
         if (blockNumber > state.blockNumbers[0] + 1) {
-          for (let i = state.blockNumbers[0] + 1; i < blockNumber; i++) {
-            skippedBlockNumbers.push(i)
-          }
+          skippedBlockListBuilder(skippedBlockNumbers, state.blockNumbers[0] + 1, blockNumber)
         }
         const newBlockNumbers = _.chain([blockNumber])
           .union(skippedBlockNumbers, state.blockNumbers)
@@ -103,6 +121,13 @@ if ($blockListPage.length) {
           prependWithClingBottom($blocksList, state.newBlock)
         }
         updateAllAges()
+      }
+      if (state.initialRender) {
+        _.each(state.skippedBlockNumbers, (skippedBlockNumber) => {
+          $(`[data-block-number="${skippedBlockNumber + 1}"]`).after(placeHolderBlock(skippedBlockNumber))
+        })
+        updateAllAges()
+        Object.assign({}, state, {initialRender: false})
       }
     }
   })
