@@ -29,7 +29,8 @@ defmodule Explorer.Application do
   defp configurable_children do
     [
       configure(Explorer.ExchangeRates),
-      configure(Explorer.Market.History.Cataloger)
+      configure(Explorer.Market.History.Cataloger),
+      configure(Explorer.Scheduler)
     ]
     |> List.flatten()
   end

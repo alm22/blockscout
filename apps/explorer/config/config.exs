@@ -18,6 +18,10 @@ config :explorer, Explorer.ExchangeRates, enabled: true
 
 config :explorer, Explorer.Market.History.Cataloger, enabled: true
 
+config :explorer, Explorer.Scheduler,
+  enabled: false,
+  jobs: [{"0 0,12 * * *", {Explorer.UserDataDump, :generate_dump, []}}]
+
 config :explorer, Explorer.UserDataDump,
   network: System.get_env("NETWORK") || "poa",
   dump_bucket: System.get_env("S3_BUCKET")
